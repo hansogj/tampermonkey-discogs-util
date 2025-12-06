@@ -1,16 +1,11 @@
 import { useEffect } from 'react';
-import { DEFAULT_HIGHLIGHTED_LABELS, LabelQuality } from '../constants';
-
-const LABEL_QUALITY_COLORS: Record<LabelQuality, string> = {
-    poor: '#8B0000',      // Dark Red
-    fair: '#FF6347',      // Tomato/Light Red
-    good: '#90EE90',      // Light Green
-    veryGood: '#228B22',  // Forest Green/Dark Green
-};
+import { DEFAULT_HIGHLIGHTED_LABELS, CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY, LabelQuality, LABEL_QUALITY_COLORS } from '../constants';
+import type { HighlightedLabels } from '../types';
 
 export function LabelHighlighter() {
     useEffect(() => {
         const highlightLabels = () => {
+            const customLabels: HighlightedLabels = GM_getValue(CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY, DEFAULT_HIGHLIGHTED_LABELS);
             const allLinks = document.querySelectorAll('a[href*="/label/"]');
 
             allLinks.forEach(link => {
@@ -24,8 +19,8 @@ export function LabelHighlighter() {
                 labelElement.style.borderRadius = ''; // for styling
 
                 let foundQuality: LabelQuality | undefined;
-                for (const quality in DEFAULT_HIGHLIGHTED_LABELS) {
-                    if (DEFAULT_HIGHLIGHTED_LABELS[quality as LabelQuality].some(l => l.toLowerCase() === labelName.toLowerCase())) {
+                for (const quality in customLabels) {
+                    if (customLabels[quality as LabelQuality].some((l: string) => l.toLowerCase() === labelName.toLowerCase())) {
                         foundQuality = quality as LabelQuality;
                         break;
                     }

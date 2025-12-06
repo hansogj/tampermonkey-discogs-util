@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Panel } from './components/Panel';
 import { LabelHighlighter } from './components/LabelHighlighter';
+import { Dashboard } from './components/Dashboard';
 import { PANEL_STATE_STORAGE_KEY, TOKEN_STORAGE_KEY } from './constants';
 import { displayStatusMessage } from './ui'; // Keep for now, to be removed later
 
@@ -10,6 +11,7 @@ const queryClient = new QueryClient();
 export function App() {
     const [isOpen, setIsOpen] = useState<boolean>(() => GM_getValue(PANEL_STATE_STORAGE_KEY, true));
     const [isPanelEmpty, setIsPanelEmpty] = useState(false);
+    const [isDashboardOpen, setDashboardOpen] = useState(false);
 
     useEffect(() => {
         if (isPanelEmpty) {
@@ -89,6 +91,10 @@ export function App() {
     }, []);
 
 
+    const handleDashboardSave = () => {
+        setDashboardOpen(false);
+    };
+
     return (
         <QueryClientProvider client={queryClient}>
             <LabelHighlighter />
@@ -100,23 +106,36 @@ export function App() {
                     {isOpen ? '→' : '←'}
                 </div>
                 <div id="dhp-content-area" style={contentAreaStyle}>
-                    <h3 style={titleStyle}>Discogs Panel</h3>
-                    
-                    {/* Logout Link */}
-                    <a href="#" onClick={handleLogout} style={{
-                        position: 'absolute', top: '10px', right: '10px',
-                        fontSize: '11px', color: '#ccc', textDecoration: 'underline',
-                        cursor: 'pointer', backgroundColor: 'transparent', border: 'none'
-                    }}>
-                        Log out
-                    </a>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <button onClick={() => setDashboardOpen(true)} style={{
+                            background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px'
+                        }}>&#x2699;</button>
+                        <h3 style={titleStyle}>Discogs Panel</h3>
+                        <a href="#" onClick={handleLogout} style={{
+                            fontSize: '11px', color: '#ccc', textDecoration: 'underline',
+                            cursor: 'pointer', backgroundColor: 'transparent', border: 'none'
+                        }}>
+                            Log out
+                        </a>
+                    </div>
                     
                     {/* Status Area */}
                     <div id="dhp-status-area" style={{ fontSize: '12px', textAlign: 'center', marginBottom: '10px', display: 'none', padding: '5px', borderRadius: '4px' }}>
                         {/* Messages will be displayed here */}
                     </div>
 
-                    <Panel onEmptyStateChange={setIsPanelEmpty} /> {/* The core panel logic */}
+                    {isDashboardOpen ? (
+                        <div>
+                            <button onClick={() => setDashboardOpen(false)} style={{
+                                background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '14px', marginBottom: '10px'
+                            }}>
+                                &larr; Back
+                            </button>
+                            <Dashboard onSaveSuccess={handleDashboardSave} />
+                        </div>
+                    ) : (
+                        <Panel onEmptyStateChange={setIsPanelEmpty} />
+                    )}
                 </div>
             </div>
         </QueryClientProvider>

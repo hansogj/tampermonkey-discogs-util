@@ -19,6 +19,13 @@ export interface FieldsResponse {
     fields: CustomField[];
 }
 
+// Types for highlighted labels
+export type LabelQuality = 'poor' | 'fair' | 'good' | 'veryGood';
+
+export type HighlightedLabels = {
+    [key in LabelQuality]: string[];
+};
+
 // Type for the processed object containing dropdown options
 export interface ApplyEditSelections {
     [fieldId: number]: string;

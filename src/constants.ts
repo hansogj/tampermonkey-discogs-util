@@ -1,6 +1,7 @@
 // src/constants.ts
 export const PANEL_STATE_STORAGE_KEY: string = 'dhp_panel_state';
 export const SELECTIONS_STORAGE_KEY: string = 'dhp_selections';
+export const CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY: string = 'dhp_custom_highlighted_labels';
 export const TOKEN_STORAGE_KEY: string = 'dhp_api_token';
 export const SCRIPT_VERSION: string = '6.21';
 
@@ -70,4 +71,11 @@ export const DEFAULT_HIGHLIGHTED_LABELS: HighlightedLabels = {
     'Seventh Records',
     'Soleil Zeuhl',
   ],
+};
+
+export const LABEL_QUALITY_COLORS: Record<LabelQuality, string> = {
+    poor: '#8B0000',      // Dark Red
+    fair: '#FF6347',      // Tomato/Light Red
+    good: '#90EE90',      // Light Green
+    veryGood: '#228B22',  // Forest Green/Dark Green
 };
