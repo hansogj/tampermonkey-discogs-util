@@ -1,0 +1,36 @@
+{
+  "name": "tampermonkey-discogs-util",
+  "version": "6.21.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "vite build && node scripts/prepend-banner.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "Discogs",
+    "Tampermonkey",
+    "Utility",
+    "Bulk edit"
+  ],
+  "author": "hansogj@gmail.com",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/tampermonkey": "^5.0.5",
+    "@vitejs/plugin-react": "^5.1.1",
+    "esbuild": "^0.27.0",
+    "sass": "^1.94.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.6"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.11",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1"
+  }
+}
