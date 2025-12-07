@@ -1,6 +1,6 @@
 {
   "name": "tampermonkey-discogs-util",
-  "version": "6.21.0",
+  "version": "6.21.1",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest --run",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "format": "prettier --write ."
+    "check": "prettier --check .  && pnpm lint ",
+    "format": "prettier --write . && pnpm lint --fix"
   },
   "keywords": [
     "Discogs",

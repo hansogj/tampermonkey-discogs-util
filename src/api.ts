@@ -3,11 +3,11 @@ import { TOKEN_STORAGE_KEY, SCRIPT_VERSION, EDIT_ITEM_NOTE_HASH } from './consta
 import type { IdentityResponse, CustomField, FieldsResponse, ApplyEditSelections } from './types';
 
 // Module-scoped variable to hold the fetched custom fields with their IDs
-let _allCustomFields: CustomField[] = [];
+let allCustomFields: CustomField[] = [];
 
 // Exported for testing purposes to inject mock data
 export function __SetAllCustomFields(fields: CustomField[]): void {
-  _allCustomFields = fields;
+  allCustomFields = fields;
 }
 
 async function fetchDiscogsUsername(token: string): Promise<string | null> {

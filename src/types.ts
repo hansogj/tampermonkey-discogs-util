@@ -40,3 +40,10 @@ export interface ErrorResponse {
 
 // Type for the status messages in the UI
 export type MessageType = 'success' | 'info' | 'error';
+
+export interface ReleaseModel {
+  artist: string;
+  title: string;
+  id: string | null;
+  rel: HTMLElement; // The 'tr' element
+}

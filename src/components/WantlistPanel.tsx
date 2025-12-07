@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ReleaseModel } from '../types';
 import { find } from '../ui';
 
 // Helper for DOM querying, now local to WantlistPanel.tsx
@@ -6,13 +7,6 @@ const getReleaseId = (releaseLink: HTMLAnchorElement) => {
   const match = releaseLink.href.match(/(\/\/(master|release)\/(\d+))/);
   return match ? match[3] : null;
 };
-
-interface ReleaseModel {
-  artist: string;
-  title: string;
-  id: string | null;
-  rel: HTMLElement; // The 'tr' element
-}
 
 const buildModel = (release: HTMLElement): ReleaseModel => {
   const artistTitle = find('td.artist_title a', release);

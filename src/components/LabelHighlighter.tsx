@@ -1,18 +1,9 @@
 import { useEffect } from 'react';
 import {
-  DEFAULT_HIGHLIGHTED_LABELS,
   CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY,
-  LabelQuality,
-  LABEL_QUALITY_COLORS,
-} from '../constants';
-import type { HighlightedLabels } from '../types';
-
-import { useEffect } from 'react';
-import {
   DEFAULT_HIGHLIGHTED_LABELS,
-  CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY,
-  LabelQuality,
   LABEL_QUALITY_COLORS,
+  LabelQuality,
 } from '../constants';
 import type { HighlightedLabels } from '../types';
 
