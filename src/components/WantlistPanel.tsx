@@ -1,7 +1,37 @@
 import React, { useState, useEffect } from 'react';
+import { find } from '../ui';
 
 // Helper for DOM querying, now local to WantlistPanel.tsx
-const find = (selector: string, root: ParentNode = document): HTMLElement[] => Array.from(root.querySelectorAll(selector)) as HTMLElement[];
+const getReleaseId = (releaseLink: HTMLAnchorElement) => {
+    const match = releaseLink.href.match(/(\/\/(master|release)\/(\d+))/);
+    return match ? match[3] : null;
+};
+
+interface ReleaseModel {
+    artist: string;
+    title: string;
+    id: string | null;
+    rel: HTMLElement; // The 'tr' element
+}
+
+const buildModel = (release: HTMLElement): ReleaseModel => {
+    const artistTitle = find("td.artist_title a", release);
+    return {
+        artist: artistTitle[0]?.textContent || '',
+        title: artistTitle[1]?.textContent || '',
+        id: artistTitle[1] ? getReleaseId(artistTitle[1] as HTMLAnchorElement) : null,
+        rel: release
+    };
+};
+
+const isDuplicateRelease = (release: ReleaseModel, index: number, list: ReleaseModel[]) => {
+    // Check if there's any *earlier* item in the list that is the same
+    return list.slice(0, index).some((_release) => {
+        const matchArtist = release.artist.toLowerCase() === _release.artist.toLowerCase();
+        const matchTitle = release.title.toLowerCase() === _release.title.toLowerCase();
+        return matchArtist && matchTitle;
+    });
+};
 
 const containerStyle: React.CSSProperties = {
     display: 'flex',
@@ -37,36 +67,6 @@ export function WantlistPanel() {
     useEffect(() => {
         const wantlistItems = find("tr[class*=wantlist]");
         
-        const getReleaseId = (releaseLink: HTMLAnchorElement) => {
-            const match = releaseLink.href.match(/(\/\/(master|release)\/(\d+))/);
-            return match ? match[3] : null;
-        };
-       
-        interface ReleaseModel {
-            artist: string;
-            title: string;
-            id: string | null;
-            rel: HTMLElement; // The 'tr' element
-        }
-
-        const buildModel = (release: HTMLElement): ReleaseModel => {
-            const artistTitle = find("td.artist_title a", release);
-            return {
-                artist: artistTitle[0]?.innerText || '',
-                title: artistTitle[1]?.innerText || '',
-                id: artistTitle[1] ? getReleaseId(artistTitle[1] as HTMLAnchorElement) : null,
-                rel: release
-            };
-        };
-        
-        const isDuplicateRelease = (release: ReleaseModel, index: number, list: ReleaseModel[]) => {
-            return list.some((_release, _index) => 
-                release.title.toLowerCase() === _release.title.toLowerCase() &&
-                _release.artist.toLowerCase() === _release.artist.toLowerCase() &&
-                index < _index // Mark later occurrences as duplicates
-            );
-        };
-
         const hide = (elem: HTMLElement) => { elem.classList.add("hidden"); };
         const show = (elem: HTMLElement) => { elem.classList.remove("hidden"); };
 
@@ -74,7 +74,8 @@ export function WantlistPanel() {
         
         if (showUniqueOnly) {
             allWantlistReleases.forEach((item, index, list) => {
-                if (isDuplicateRelease(item, index, list)) {
+                const isDup = isDuplicateRelease(item, index, list);
+                if (isDup) {
                     hide(item.rel);
                 } else {
                     show(item.rel); // Ensure first instance of a unique item is visible

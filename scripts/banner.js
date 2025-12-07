@@ -9,5 +9,5 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
-// @run-at       document-start
+// @run-at       document-idle
 // ==/UserScript==

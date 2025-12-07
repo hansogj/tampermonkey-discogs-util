@@ -15,6 +15,11 @@ import type {
 // Module-scoped variable to hold the fetched custom fields with their IDs
 let allCustomFields: CustomField[] = [];
 
+// Exported for testing purposes to inject mock data
+export function __SetAllCustomFields(fields: CustomField[]): void {
+    allCustomFields = fields;
+}
+
 async function fetchDiscogsUsername(token: string): Promise<string | null> {
     return new Promise(resolve => {
         GM_xmlhttpRequest({
