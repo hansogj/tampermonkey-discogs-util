@@ -9,6 +9,4 @@ document.body.appendChild(rootDiv);
 
 // Render the App component into the root
 const root = ReactDOM.createRoot(rootDiv);
-root.render(
-    <App />
-);
+root.render(<App />);

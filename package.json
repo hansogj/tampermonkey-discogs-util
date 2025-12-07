@@ -6,7 +6,9 @@
   "scripts": {
     "build": "vite build && node scripts/prepend-banner.js",
     "typecheck": "tsc --noEmit",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "format": "prettier --write ."
   },
   "keywords": [
     "Discogs",
@@ -26,9 +28,16 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/tampermonkey": "^5.0.5",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^5.1.1",
     "esbuild": "^0.27.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^8.10.2",
+    "eslint-plugin-prettier": "^4.2.5",
+    "eslint-plugin-react": "^7.37.5",
     "jsdom": "^27.2.0",
+    "prettier": "^2.8.8",
     "sass": "^1.94.2",
     "typescript": "^5.9.3",
     "vite": "^7.2.6",
