@@ -3,11 +3,11 @@ import { TOKEN_STORAGE_KEY, SCRIPT_VERSION, EDIT_ITEM_NOTE_HASH } from './consta
 import type { IdentityResponse, CustomField, FieldsResponse, ApplyEditSelections } from './types';
 
 // Module-scoped variable to hold the fetched custom fields with their IDs
-let allCustomFields: CustomField[] = [];
+let _allCustomFields: CustomField[] = [];
 
 // Exported for testing purposes to inject mock data
 export function __SetAllCustomFields(fields: CustomField[]): void {
-  allCustomFields = fields;
+  _allCustomFields = fields;
 }
 
 async function fetchDiscogsUsername(token: string): Promise<string | null> {
@@ -51,7 +51,7 @@ export async function getCustomFields(): Promise<FieldsResponse> {
       onload: function (response: Tampermonkey.Response<unknown>) {
         if (response.status >= 200 && response.status < 300) {
           const data: FieldsResponse = JSON.parse(response.responseText);
-          allCustomFields = data.fields || [];
+          _allCustomFields = data.fields || [];
           resolve(data);
         } else {
           reject(new Error(response.responseText));
