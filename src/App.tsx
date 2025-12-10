@@ -3,8 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Panel } from './components/Panel';
 import { LabelHighlighter } from './components/LabelHighlighter';
 import { Dashboard } from './components/Dashboard';
+import { Login } from './components/Login';
 import { PANEL_STATE_STORAGE_KEY, TOKEN_STORAGE_KEY } from './constants';
-import { displayStatusMessage } from './ui'; // Keep for now, to be removed later
+import { displayStatusMessage } from './ui';
 
 const queryClient = new QueryClient();
 
@@ -12,6 +13,7 @@ export function App() {
   const [isOpen, setIsOpen] = useState<boolean>(() => GM_getValue(PANEL_STATE_STORAGE_KEY, true));
   const [isPanelEmpty, setIsPanelEmpty] = useState(false);
   const [isDashboardOpen, setDashboardOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!GM_getValue(TOKEN_STORAGE_KEY));
 
   useEffect(() => {
     if (isPanelEmpty) {
@@ -19,7 +21,18 @@ export function App() {
     }
   }, [isPanelEmpty]);
 
-  // Styles from original main.tsx and backup.index.js
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = (event: React.MouseEvent) => {
+    event.preventDefault();
+    GM_deleteValue(TOKEN_STORAGE_KEY);
+    setIsAuthenticated(false);
+    displayStatusMessage('API Token cleared. Reloading page...', 'info', 0);
+    setTimeout(() => window.location.reload(), 1500);
+  };
+  
   const panelContainerStyle: React.CSSProperties = {
     position: 'fixed',
     top: '120px',
@@ -30,7 +43,7 @@ export function App() {
     transition: 'transform 0.3s ease-in-out',
     fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
     color: 'white',
-    transform: isOpen ? 'translateX(0)' : 'translateX(calc(100% - 30px))', // Slide effect
+    transform: isOpen ? 'translateX(0)' : 'translateX(calc(100% - 30px))',
   };
 
   const toggleTabStyle: React.CSSProperties = {
@@ -55,35 +68,25 @@ export function App() {
     borderRight: 'none',
     borderBottomLeftRadius: '8px',
     boxShadow: '-2px 2px 5px rgba(0,0,0,0.2)',
-    minWidth: '220px', // Restored from original
+    minWidth: '220px',
     display: 'flex',
     flexDirection: 'column',
   };
 
   const titleStyle: React.CSSProperties = {
-    margin: '0 0 15px 0', // Restored from original
+    margin: '0 0 15px 0',
     fontSize: '18px',
     textAlign: 'center',
     color: 'white',
   };
 
-  // Toggle panel visibility
   const handleToggle = () => {
     setIsOpen((prev) => {
-      GM_setValue(PANEL_STATE_STORAGE_KEY, !prev); // Persist state
+      GM_setValue(PANEL_STATE_STORAGE_KEY, !prev);
       return !prev;
     });
   };
 
-  // Logout functionality
-  const handleLogout = (event: React.MouseEvent) => {
-    event.preventDefault();
-    GM_deleteValue(TOKEN_STORAGE_KEY);
-    displayStatusMessage('API Token cleared. Reloading page...', 'info', 0); // Still using imperative helper for now
-    setTimeout(() => location.reload(), 1500);
-  };
-
-  // Inject CSS for .hidden class once (originally in main.tsx)
   useEffect(() => {
     const styleTag = document.createElement('style');
     styleTag.innerHTML = `.hidden { display: none !important; }`;
@@ -96,43 +99,46 @@ export function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LabelHighlighter />
+      {isAuthenticated && <LabelHighlighter />}
       <div id="dhp-container" style={panelContainerStyle}>
         <div style={toggleTabStyle} onClick={handleToggle}>
           {isOpen ? '→' : '←'}
         </div>
         <div id="dhp-content-area" style={contentAreaStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <button
-              onClick={() => setDashboardOpen(true)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'white',
-                cursor: 'pointer',
-                fontSize: '18px',
-              }}
-            >
-              &#x2699;
-            </button>
+            {isAuthenticated && (
+              <button
+                onClick={() => setDashboardOpen(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                }}
+              >
+                &#x2699;
+              </button>
+            )}
             <h3 style={titleStyle}>Discogs Panel</h3>
-            <a
-              href="#"
-              onClick={handleLogout}
-              style={{
-                fontSize: '11px',
-                color: '#ccc',
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                backgroundColor: 'transparent',
-                border: 'none',
-              }}
-            >
-              Log out
-            </a>
+            {isAuthenticated && (
+              <a
+                href="#"
+                onClick={handleLogout}
+                style={{
+                  fontSize: '11px',
+                  color: '#ccc',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                }}
+              >
+                Log out
+              </a>
+            )}
           </div>
 
-          {/* Status Area */}
           <div
             id="dhp-status-area"
             style={{
@@ -144,28 +150,31 @@ export function App() {
               borderRadius: '4px',
             }}
           >
-            {/* Messages will be displayed here */}
           </div>
 
-          {isDashboardOpen ? (
-            <div>
-              <button
-                onClick={() => setDashboardOpen(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'white',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  marginBottom: '10px',
-                }}
-              >
-                &larr; Back
-              </button>
-              <Dashboard onSaveSuccess={handleDashboardSave} />
-            </div>
+          {isAuthenticated ? (
+            isDashboardOpen ? (
+              <div>
+                <button
+                  onClick={() => setDashboardOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    marginBottom: '10px',
+                  }}
+                >
+                  &larr; Back
+                </button>
+                <Dashboard onSaveSuccess={handleDashboardSave} />
+              </div>
+            ) : (
+              <Panel onEmptyStateChange={setIsPanelEmpty} />
+            )
           ) : (
-            <Panel onEmptyStateChange={setIsPanelEmpty} />
+            <Login onLogin={handleLogin} />
           )}
         </div>
       </div>
