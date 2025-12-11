@@ -7,6 +7,7 @@
 // @downloadURL  https://raw.githubusercontent.com/hansogj/tampermonkey-discogs-util/main/dist/index.js                                                                                                                                            │
 // @author       hansogj@gmail.com
 // @match        https://www.discogs.com/*
+// @exclude      https://www.discogs.com/service/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
 // @grant        GM_setValue
