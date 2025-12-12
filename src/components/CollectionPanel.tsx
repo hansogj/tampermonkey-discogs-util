@@ -106,7 +106,7 @@ export function CollectionPanel() {
   };
 
   const handleSelectionChange = (fieldId: number, value: string) => {
-    setSelections((prev) => ({ ...prev, [fieldId]: value }));
+    setSelections((prev) => ({ ...prev, [fieldId]: value === '' ? null : value }));
   };
 
   if (isLoading) {
