@@ -95,9 +95,8 @@ describe('CollectionPanel', () => {
     expect(screen.getByLabelText('Sleeve Condition')).toBeInTheDocument();
     expect(screen.queryByLabelText('Description')).toBeNull();
 
-    expect(
-      screen.getByRole('option', { name: '-- Select Media Condition --' }),
-    ).toBeInTheDocument();
+    const noChangeOptions = screen.getAllByRole('option', { name: '-- No change --' });
+    expect(noChangeOptions.length).toBeGreaterThan(0);
     const mintOptions = screen.getAllByRole('option', { name: 'Mint' });
     expect(mintOptions.length).toBe(2);
     expect(mintOptions[0]).toBeInTheDocument();
