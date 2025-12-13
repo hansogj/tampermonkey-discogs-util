@@ -149,7 +149,7 @@ export function CollectionPanel() {
               value={selections[field.id] || ''}
               onChange={(e) => handleSelectionChange(field.id, e.target.value)}
             >
-              <option value="">-- Select {field.name} --</option>
+              <option value="">-- No change --</option>
               {field.options?.map((opt: string) => (
                 <option key={opt} value={opt}>
                   {opt}
