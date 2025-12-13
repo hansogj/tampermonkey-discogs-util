@@ -5,7 +5,7 @@ const projectRoot = path.resolve(__dirname, '../');
 const packageJsonPath = path.join(projectRoot, 'package.json');
 const bannerJsPath = path.join(__dirname, 'banner.js');
 const distDir = path.join(projectRoot, 'dist');
-const jsFilePath = path.join(distDir, 'index.js');
+const jsFilePath = path.join(distDir, 'discogs-util.user.js');
 
 try {
   // 1. Read package.json to get the version

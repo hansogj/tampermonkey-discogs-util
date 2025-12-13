@@ -13,7 +13,9 @@ export function App() {
   const [isOpen, setIsOpen] = useState<boolean>(() => GM_getValue(PANEL_STATE_STORAGE_KEY, true));
   const [isPanelEmpty, setIsPanelEmpty] = useState(false);
   const [isDashboardOpen, setDashboardOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!GM_getValue(TOKEN_STORAGE_KEY));
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    () => !!GM_getValue(TOKEN_STORAGE_KEY),
+  );
 
   useEffect(() => {
     if (isPanelEmpty) {
@@ -32,7 +34,7 @@ export function App() {
     displayStatusMessage('API Token cleared. Reloading page...', 'info', 0);
     setTimeout(() => window.location.reload(), 1500);
   };
-  
+
   const panelContainerStyle: React.CSSProperties = {
     position: 'fixed',
     top: '120px',
@@ -149,8 +151,7 @@ export function App() {
               padding: '5px',
               borderRadius: '4px',
             }}
-          >
-          </div>
+          ></div>
 
           {isAuthenticated ? (
             isDashboardOpen ? (

@@ -12,7 +12,7 @@ export default defineConfig({
     lib: {
       entry: 'src/main.tsx',
       name: 'DiscogsGradingHelperPanel',
-      fileName: (format) => `index.js`, // Output as index.js regardless of format
+      fileName: (format) => `discogs-util.user.js`, // Output as discogs-util.user.js regardless of format
       formats: ['iife'], // IIFE format is often more suitable for user scripts
     },
     outDir: 'dist',
