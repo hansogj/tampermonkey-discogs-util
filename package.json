@@ -1,6 +1,6 @@
 {
   "name": "tampermonkey-discogs-util",
-  "version": "6.21.9",
+  "version": "6.21.10",
   "description": "",
   "main": "dist/index.js",
   "scripts": {

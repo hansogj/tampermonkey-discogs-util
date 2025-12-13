@@ -6,7 +6,7 @@
 // @updateURL    https://raw.githubusercontent.com/hansogj/tampermonkey-discogs-util/main/dist/discogs-util.user.js
 // @downloadURL  https://raw.githubusercontent.com/hansogj/tampermonkey-discogs-util/main/dist/discogs-util.user.js
 // @author       hansogj@gmail.com
-// @license      MIT
+// @license      MIT - https://opensource.org/licenses/MIT
 // @match        https://www.discogs.com/*
 // @exclude      https://www.discogs.com/service/*
 // @grant        GM_xmlhttpRequest
