@@ -64,7 +64,7 @@ export async function getCustomFields(): Promise<FieldsResponse> {
 
 export async function applyBulkEdit(selections: ApplyEditSelections): Promise<string> {
   const selectedRows = Array.from(
-    document.querySelectorAll('input[aria-label="Select row"]:checked'),
+    document.querySelectorAll('[data-field="__check__"] input[aria-label~="row"]:checked'),
   ) as HTMLInputElement[];
 
   let itemsToUpdate: HTMLElement[];
