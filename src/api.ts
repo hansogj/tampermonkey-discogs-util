@@ -63,9 +63,22 @@ export async function getCustomFields(): Promise<FieldsResponse> {
 }
 
 export async function applyBulkEdit(selections: ApplyEditSelections): Promise<string> {
-  const itemsToUpdate = Array.from(
-    document.querySelectorAll('div.MuiDataGrid-row[data-id]'),
-  ) as HTMLElement[];
+  const selectedRows = Array.from(
+    document.querySelectorAll('input[aria-label="Select row"]:checked'),
+  ) as HTMLInputElement[];
+
+  let itemsToUpdate: HTMLElement[];
+
+  if (selectedRows.length > 0) {
+    itemsToUpdate = selectedRows.map(
+      (checkbox) => checkbox.closest('div.MuiDataGrid-row[data-id]') as HTMLElement,
+    );
+  } else {
+    itemsToUpdate = Array.from(
+      document.querySelectorAll('div.MuiDataGrid-row[data-id]'),
+    ) as HTMLElement[];
+  }
+
   if (itemsToUpdate.length === 0) {
     throw new Error('No collection items found on this page to edit.');
   }
