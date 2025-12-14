@@ -13,7 +13,7 @@ A Tampermonkey script to enhance the Discogs website with useful features, inclu
 ## Installation
 
 1.  Install a user script manager, such as [Tampermonkey](https://www.tampermonkey.net/).
-2.  Install the script from the [dist/index.js](./dist/index.js) file in this repository.
+2.  Install the script from the [dist/discogs-util.user.js](./dist/discogs-util.user.js) file in this repository.
 
 ## Usage
 
