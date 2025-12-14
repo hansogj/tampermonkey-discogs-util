@@ -3,7 +3,7 @@
 // @namespace    @hansogj
 // @version      {VERSION_PLACEHOLDER}
 // @license      MIT
-// @description  https://github.com/hansogj/tampermonkey-discogs-util.  Adds a sticky panel to Discogs with grading, location, "In collection" filter, and "Unique items" filter, with dark theme. Now with dynamic loading of all custom fields via API token.
+// @description  Label Highlighting, Customizable Labels, Bulk Editing, Advanced Filtering, Auto-collapsing Panel. https://github.com/hansogj/tampermonkey-discogs-util
 // @updateURL    https://raw.githubusercontent.com/hansogj/tampermonkey-discogs-util/main/dist/discogs-util.user.js
 // @downloadURL  https://raw.githubusercontent.com/hansogj/tampermonkey-discogs-util/main/dist/discogs-util.user.js
 // @author       hansogj@gmail.com
