@@ -33,20 +33,19 @@ export const DEFAULT_HIGHLIGHTED_LABELS: HighlightedLabels = {
     'Skorpio',
     'Tapestry',
     'Vinyl Lovers',
-    'Waxtime In Color',
     'WaxTime',
+    'Waxtime In Color',
     'ZYX',
   ],
   fair: [
     'Bad Joker',
-    'joe jackson recoords',
-    'Lilith',
     'Get Back',
     'Hi Hat',
+    'joe jackson recoords',
+    'Lilith',
     'Sanctuary Records',
     'Vinyl Magic (VM - BTF)',
   ],
-
   good: [
     'Analogue Productions',
     'Cisco',

@@ -83,7 +83,15 @@ const saveButtonStyle: React.CSSProperties = {
 
 export function Dashboard({ onSaveSuccess }: { onSaveSuccess: () => void }) {
   const [labels, setLabels] = useState<HighlightedLabels>(() => {
-    return GM_getValue(CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY, DEFAULT_HIGHLIGHTED_LABELS);
+    const loadedLabels: HighlightedLabels = GM_getValue(
+      CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY,
+      DEFAULT_HIGHLIGHTED_LABELS,
+    );
+    // Sort all label lists alphabetically
+    for (const quality in loadedLabels) {
+      loadedLabels[quality as LabelQuality].sort((a, b) => a.localeCompare(b));
+    }
+    return loadedLabels;
   });
   const [newLabels, setNewLabels] = useState<Record<LabelQuality, string>>({
     poor: '',
@@ -101,10 +109,15 @@ export function Dashboard({ onSaveSuccess }: { onSaveSuccess: () => void }) {
 
   const handleAddLabel = (quality: LabelQuality) => {
     const newLabel = newLabels[quality].trim();
-    if (newLabel && !labels[quality].includes(newLabel)) {
+    if (newLabel) {
+      const allLabels = (Object.values(labels) as string[][]).flat();
+      if (allLabels.some((l) => l.toLowerCase() === newLabel.toLowerCase())) {
+        alert(`Label "${newLabel}" already exists in one of the categories.`);
+        return;
+      }
       setLabels((prev: HighlightedLabels) => ({
         ...prev,
-        [quality]: [...prev[quality], newLabel],
+        [quality]: [...prev[quality], newLabel].sort((a, b) => a.localeCompare(b)),
       }));
       setNewLabels((prev) => ({ ...prev, [quality]: '' }));
     }
