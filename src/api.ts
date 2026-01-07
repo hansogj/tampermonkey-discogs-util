@@ -62,25 +62,68 @@ export async function getCustomFields(): Promise<FieldsResponse> {
   });
 }
 
-export async function applyBulkEdit(selections: ApplyEditSelections): Promise<string> {
-  const selectedRows = Array.from(
-    document.querySelectorAll('[data-field="__check__"] input[aria-label~="row"]:checked'),
-  ) as HTMLInputElement[];
+export async function fetchInstanceIdFromApi(releaseId: number): Promise<number | null> {
+  const token = GM_getValue(TOKEN_STORAGE_KEY, '');
+  if (!token) throw new Error('Please enter and save your token.');
 
-  let itemsToUpdate: HTMLElement[];
+  const username = await fetchDiscogsUsername(token);
+  if (!username) throw new Error('Could not fetch username. Please check your token.');
 
-  if (selectedRows.length > 0) {
-    itemsToUpdate = selectedRows.map(
-      (checkbox) => checkbox.closest('div.MuiDataGrid-row[data-id]') as HTMLElement,
-    );
+  const url = `https://api.discogs.com/users/${username}/collection/releases/${releaseId}`;
+  return new Promise((resolve) => {
+    GM_xmlhttpRequest({
+      method: 'GET',
+      url,
+      headers: {
+        'User-Agent': `DiscogsGradingHelperPanel/${SCRIPT_VERSION}`,
+        Authorization: `Discogs token=${token}`,
+      },
+      onload: (res: Tampermonkey.Response<unknown>) => {
+        if (res.status === 200) {
+          const data = JSON.parse(res.responseText);
+          if (data.releases && data.releases.length > 0) {
+            resolve(data.releases[0].instance_id);
+          } else {
+            resolve(null);
+          }
+        } else {
+          resolve(null);
+        }
+      },
+      onerror: () => resolve(null),
+    });
+  });
+}
+
+export async function applyBulkEdit(
+  selections: ApplyEditSelections,
+  instanceIds?: number[],
+): Promise<string> {
+  let itemIds: number[];
+
+  if (instanceIds && instanceIds.length > 0) {
+    itemIds = instanceIds;
   } else {
-    itemsToUpdate = Array.from(
-      document.querySelectorAll('div.MuiDataGrid-row[data-id]'),
-    ) as HTMLElement[];
-  }
+    const selectedRows = Array.from(
+      document.querySelectorAll('[data-field="__check__"] input[aria-label~="row"]:checked'),
+    ) as HTMLInputElement[];
 
-  if (itemsToUpdate.length === 0) {
-    throw new Error('No collection items found on this page to edit.');
+    let rows: HTMLElement[];
+    if (selectedRows.length > 0) {
+      rows = selectedRows.map(
+        (checkbox) => checkbox.closest('div.MuiDataGrid-row[data-id]') as HTMLElement,
+      );
+    } else {
+      // If no checkboxes are selected, apply to all items on the page
+      rows = Array.from(
+        document.querySelectorAll('div.MuiDataGrid-row[data-id]'),
+      ) as HTMLElement[];
+    }
+
+    if (rows.length === 0) {
+      throw new Error('No collection items found on this page to edit.');
+    }
+    itemIds = rows.map((item) => parseInt(item.dataset.id || '', 10)).filter(Boolean);
   }
 
   const notesToUpdate = Object.entries(selections)
@@ -92,8 +135,7 @@ export async function applyBulkEdit(selections: ApplyEditSelections): Promise<st
   }
 
   let successfulFieldsUpdated = 0;
-  for (const item of itemsToUpdate) {
-    const collectionItemId = parseInt(item.dataset.id || '', 10);
+  for (const collectionItemId of itemIds) {
     if (!collectionItemId) continue;
 
     for (const note of notesToUpdate) {
@@ -130,5 +172,5 @@ export async function applyBulkEdit(selections: ApplyEditSelections): Promise<st
     }
   }
 
-  return `Finished: Successfully updated ${successfulFieldsUpdated} fields across ${itemsToUpdate.length} items.`;
+  return `Finished: Successfully updated ${successfulFieldsUpdated} fields across ${itemIds.length} items.`;
 }
