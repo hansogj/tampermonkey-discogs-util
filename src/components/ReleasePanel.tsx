@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { getCustomFields, applyBulkEdit, fetchInstanceIdFromApi } from '../api';
+import {
+  getCustomFields,
+  applyBulkEdit,
+  fetchInstanceIdFromApi,
+  getCollectionFolders,
+  moveReleaseToFolder,
+} from '../api';
 import { displayStatusMessage } from '../ui';
 import { SELECTIONS_STORAGE_KEY } from '../constants';
-import type { ApplyEditSelections, FieldsResponse } from '../types';
+import type { ApplyEditSelections, FieldsResponse, Folder } from '../types';
 
 const loadingStyle: React.CSSProperties = {
   textAlign: 'center',
@@ -12,14 +18,6 @@ const loadingStyle: React.CSSProperties = {
 const errorStyle: React.CSSProperties = {
   color: '#ffc107',
   fontSize: '12px',
-};
-
-const errorPreStyle: React.CSSProperties = {
-  backgroundColor: 'rgba(0,0,0,0.2)',
-  padding: '5px',
-  borderRadius: '3px',
-  whiteSpace: 'pre-wrap',
-  wordBreak: 'break-all',
 };
 
 const hrStyle: React.CSSProperties = {
@@ -74,26 +72,33 @@ export function ReleasePanel() {
   const [selections, setSelections] = useState<ApplyEditSelections>(() => {
     return GM_getValue(SELECTIONS_STORAGE_KEY, {});
   });
+  const [targetFolderId, setTargetFolderId] = useState<string>('');
 
-  // Extract releaseId from URL
   const releaseIdMatch = window.location.pathname.match(/\/release\/(\d+)/);
   const releaseId = releaseIdMatch ? parseInt(releaseIdMatch[1], 10) : null;
 
   const {
-    data: instanceId,
+    data: collectionItem,
     isLoading: isInstanceIdLoading,
     error: instanceIdError,
-  } = useQuery<number | null, Error>({
-    queryKey: ['instanceId', releaseId],
+  } = useQuery<{ instanceId: number; folderId: number } | null, Error>({
+    queryKey: ['collectionItem', releaseId],
     queryFn: () => {
-      if (!releaseId) {
-        throw new Error('Could not extract release ID from URL.');
-      }
+      if (!releaseId) throw new Error('Could not extract release ID from URL.');
       return fetchInstanceIdFromApi(releaseId);
     },
-    enabled: !!releaseId, // Only run this query if we have a valid releaseId
-    staleTime: Infinity, // The instanceId for a release in collection won't change often
-    cacheTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: !!releaseId,
+    staleTime: Infinity,
+    cacheTime: 5 * 60 * 1000,
+  });
+
+  const instanceId = collectionItem?.instanceId;
+  const currentFolderId = collectionItem?.folderId;
+
+  const { data: folders, isLoading: areFoldersLoading } = useQuery<Folder[], Error>({
+    queryKey: ['collectionFolders'],
+    queryFn: getCollectionFolders,
+    enabled: !!instanceId,
   });
 
   const {
@@ -103,136 +108,157 @@ export function ReleasePanel() {
   } = useQuery<FieldsResponse, Error>({
     queryKey: ['customFields'],
     queryFn: getCustomFields,
-    enabled: !!instanceId, // Only fetch custom fields if we have an instanceId
+    enabled: !!instanceId,
   });
 
-  const { mutate: performEdit, isPending: isEditing } = useMutation<
-    string,
-    Error,
-    ApplyEditSelections
-  >({
-    mutationFn: (vars) => applyBulkEdit(vars, instanceId ? [instanceId] : []),
-    onSuccess: (data) => {
-      displayStatusMessage(data, 'success', 0);
-      setTimeout(() => location.reload(), 1500);
-    },
+  const { mutateAsync: performEdit, isPending: isEditing } = useMutation({
+    mutationFn: (vars: ApplyEditSelections) => applyBulkEdit(vars, instanceId ? [instanceId] : []),
+    onSuccess: (data) => displayStatusMessage(data, 'success', 0),
     onError: (e) => {
       displayStatusMessage(e.message, 'error');
       console.error('Edit mutation failed', e);
     },
   });
 
-  const handleApplySelections = () => {
+  const { mutateAsync: performMove, isPending: isMoving } = useMutation({
+    mutationFn: (newFolderId: number) => {
+      if (!releaseId || !instanceId || !currentFolderId) throw new Error('Missing IDs for move.');
+      return moveReleaseToFolder(releaseId, instanceId, currentFolderId, newFolderId);
+    },
+    onSuccess: () => displayStatusMessage('Release moved successfully!', 'success', 0),
+    onError: (e) => {
+      displayStatusMessage(e.message, 'error');
+      console.error('Move mutation failed', e);
+    },
+  });
+
+  const handleApplySelections = async () => {
     GM_setValue(SELECTIONS_STORAGE_KEY, selections);
-    performEdit(selections);
+
+    const hasFieldSelections = Object.values(selections).some((v) => v !== null);
+    const hasFolderSelection = targetFolderId && Number(targetFolderId) !== currentFolderId;
+
+    if (!hasFieldSelections && !hasFolderSelection) {
+      return;
+    }
+
+    try {
+      let changed = false;
+      if (hasFieldSelections) {
+        await performEdit(selections);
+        changed = true;
+      }
+      if (hasFolderSelection) {
+        await performMove(Number(targetFolderId));
+        changed = true;
+      }
+
+      if (changed) {
+        displayStatusMessage('Changes applied successfully!', 'success', 0);
+        setTimeout(() => location.reload(), 1500);
+      }
+    } catch (e) {
+      // Error is already handled by onError in useMutation
+    }
   };
 
   const handleSelectionChange = (fieldId: number, value: string) => {
     setSelections((prev) => ({ ...prev, [fieldId]: value === '' ? null : value }));
   };
 
-  if (!releaseId) {
-    return (
-      <div style={{ ...loadingStyle, fontSize: '12px' }}>
-        Invalid release URL.
-      </div>
-    );
-  }
-
-  if (isInstanceIdLoading) {
-    return (
-      <div style={{ ...loadingStyle, fontSize: '12px' }}>
-        Fetching collection status via API...
-      </div>
-    );
-  }
-
-  if (instanceIdError) {
+  if (!releaseId)
+    return <div style={{ ...loadingStyle, fontSize: '12px' }}>Invalid release URL.</div>;
+  if (isInstanceIdLoading)
+    return <div style={{ ...loadingStyle, fontSize: '12px' }}>Fetching collection status via API...</div>;
+  if (instanceIdError)
     return (
       <div style={errorStyle}>
-        <p style={{ fontWeight: 'bold' }}>Failed to fetch collection status</p>
-        <p>Status: {instanceIdError.message}</p>
-        <pre style={errorPreStyle}>{instanceIdError.message}</pre>
+        <p>Failed to fetch collection status</p>
+        <p>{instanceIdError.message}</p>
       </div>
     );
-  }
-
-  if (!instanceId) {
+  if (!instanceId)
     return (
       <div style={{ ...loadingStyle, fontSize: '12px' }}>
         This release is not in your collection.
       </div>
     );
-  }
 
-  if (isCustomFieldsLoading) {
-    return <div style={loadingStyle}>Loading custom fields...</div>;
-  }
+  const isLoading = isCustomFieldsLoading || areFoldersLoading;
+  if (isLoading) return <div style={loadingStyle}>Loading...</div>;
 
-  if (customFieldsError) {
+  if (customFieldsError)
     return (
       <div style={errorStyle}>
-        <p style={{ fontWeight: 'bold' }}>Failed to load custom fields</p>
-        <p>Status: {customFieldsError.message}</p>
-        <pre style={errorPreStyle}>{customFieldsError.message}</pre>
+        <p>Failed to load custom fields</p>
+        <p>{customFieldsError.message}</p>
       </div>
     );
-  }
 
+  const isWorking = isEditing || isMoving;
   const dynamicButtonStyle = {
     ...buttonStyle,
-    cursor: isEditing ? 'not-allowed' : 'pointer',
-    opacity: isEditing ? '0.7' : '1',
+    cursor: isWorking ? 'not-allowed' : 'pointer',
+    opacity: isWorking ? '0.7' : '1',
   };
-
   const dropdownFields = fieldsResponse?.fields.filter((field) => field.type === 'dropdown') || [];
+  const currentFolderName = folders?.find((f) => f.id === currentFolderId)?.name || 'N/A';
 
   return (
     <div id="edit-section">
       <hr style={hrStyle} />
       <h4 style={h4Style}>Edit release fields</h4>
 
-      {dropdownFields.length > 0 ? (
-        <>
-          <div style={dropdownContainerStyle}>
-            {dropdownFields.map((field: CustomField) => (
-              <div key={field.id}>
-                <label htmlFor={`dhp-field-${field.id}`} style={labelStyle}>
-                  {field.name}
-                </label>
-                <select
-                  id={`dhp-field-${field.id}`}
-                  style={selectStyle}
-                  value={selections[field.id] || ''}
-                  onChange={(e) => handleSelectionChange(field.id, e.target.value)}
-                >
-                  <option value="">-- No change --</option>
-                  {field.options?.map((opt: string) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
+      <div style={dropdownContainerStyle}>
+        {/* Folder dropdown */}
+        <div>
+          <label htmlFor="dhp-folder-select" style={labelStyle}>
+            Folder
+          </label>
+          <div style={{ fontSize: '11px', color: '#ccc', marginBottom: '5px' }}>
+            Current: {currentFolderName}
           </div>
-          <button
-            onClick={handleApplySelections}
-            disabled={isEditing}
-            style={dynamicButtonStyle}
-            onMouseEnter={(e) => {
-              if (!isEditing) e.currentTarget.style.backgroundColor = '#00a300';
-            }}
-            onMouseLeave={(e) => {
-              if (!isEditing) e.currentTarget.style.backgroundColor = '#00c700';
-            }}
+          <select
+            id="dhp-folder-select"
+            style={selectStyle}
+            value={targetFolderId}
+            onChange={(e) => setTargetFolderId(e.target.value)}
           >
-            {isEditing ? 'Applying...' : 'Apply Selections'}
-          </button>
-        </>
-      ) : (
-        <div style={{ ...loadingStyle, fontSize: '12px' }}>No dropdown custom fields found.</div>
-      )}
+            <option value="">-- No change --</option>
+            {folders?.map((folder: Folder) => (
+              <option key={folder.id} value={folder.id}>
+                {folder.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Custom fields */}
+        {dropdownFields.map((field: CustomField) => (
+          <div key={field.id}>
+            <label htmlFor={`dhp-field-${field.id}`} style={labelStyle}>
+              {field.name}
+            </label>
+            <select
+              id={`dhp-field-${field.id}`}
+              style={selectStyle}
+              value={selections[field.id] || ''}
+              onChange={(e) => handleSelectionChange(field.id, e.target.value)}
+            >
+              <option value="">-- No change --</option>
+              {field.options?.map((opt: string) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={handleApplySelections} disabled={isWorking} style={dynamicButtonStyle}>
+        {isWorking ? 'Applying...' : 'Apply Selections'}
+      </button>
     </div>
   );
 }

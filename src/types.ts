@@ -19,6 +19,13 @@ export interface FieldsResponse {
   fields: CustomField[];
 }
 
+// Type for a collection folder
+export interface Folder {
+  id: number;
+  name: string;
+  count: number;
+}
+
 // Types for highlighted labels
 export type LabelQuality = 'poor' | 'fair' | 'good' | 'veryGood';
 

@@ -1,6 +1,12 @@
 import { TOKEN_STORAGE_KEY, SCRIPT_VERSION, EDIT_ITEM_NOTE_HASH } from './constants.js';
 
-import type { IdentityResponse, CustomField, FieldsResponse, ApplyEditSelections } from './types';
+import type {
+  IdentityResponse,
+  CustomField,
+  FieldsResponse,
+  ApplyEditSelections,
+  Folder,
+} from './types';
 
 // Module-scoped variable to hold the fetched custom fields with their IDs
 let _allCustomFields: CustomField[] = [];
@@ -62,7 +68,38 @@ export async function getCustomFields(): Promise<FieldsResponse> {
   });
 }
 
-export async function fetchInstanceIdFromApi(releaseId: number): Promise<number | null> {
+export async function getCollectionFolders(): Promise<Folder[]> {
+  const token = GM_getValue(TOKEN_STORAGE_KEY, '');
+  if (!token) throw new Error('Please enter and save your token.');
+
+  const username = await fetchDiscogsUsername(token);
+  if (!username) throw new Error('Could not fetch username. Please check your token.');
+
+  const url = `https://api.discogs.com/users/${username}/collection/folders`;
+  return new Promise((resolve, reject) => {
+    GM_xmlhttpRequest({
+      method: 'GET',
+      url,
+      headers: {
+        'User-Agent': `DiscogsGradingHelperPanel/${SCRIPT_VERSION}`,
+        Authorization: `Discogs token=${token}`,
+      },
+      onload: (res: Tampermonkey.Response<unknown>) => {
+        if (res.status === 200) {
+          const data = JSON.parse(res.responseText);
+          resolve(data.folders || []);
+        } else {
+          reject(new Error(res.responseText));
+        }
+      },
+      onerror: (error) => reject(new Error(JSON.stringify(error))),
+    });
+  });
+}
+
+export async function fetchInstanceIdFromApi(
+  releaseId: number,
+): Promise<{ instanceId: number; folderId: number } | null> {
   const token = GM_getValue(TOKEN_STORAGE_KEY, '');
   if (!token) throw new Error('Please enter and save your token.');
 
@@ -82,7 +119,10 @@ export async function fetchInstanceIdFromApi(releaseId: number): Promise<number 
         if (res.status === 200) {
           const data = JSON.parse(res.responseText);
           if (data.releases && data.releases.length > 0) {
-            resolve(data.releases[0].instance_id);
+            resolve({
+              instanceId: data.releases[0].instance_id,
+              folderId: data.releases[0].folder_id,
+            });
           } else {
             resolve(null);
           }
@@ -91,6 +131,42 @@ export async function fetchInstanceIdFromApi(releaseId: number): Promise<number 
         }
       },
       onerror: () => resolve(null),
+    });
+  });
+}
+
+export async function moveReleaseToFolder(
+  releaseId: number,
+  instanceId: number,
+  currentFolderId: number,
+  targetFolderId: number,
+): Promise<void> {
+  const token = GM_getValue(TOKEN_STORAGE_KEY, '');
+  if (!token) throw new Error('Please enter and save your token.');
+
+  const username = await fetchDiscogsUsername(token);
+  if (!username) throw new Error('Could not fetch username. Please check your token.');
+
+  const url = `https://api.discogs.com/users/${username}/collection/folders/${currentFolderId}/releases/${releaseId}/instances/${instanceId}`;
+
+  return new Promise<void>((resolve, reject) => {
+    GM_xmlhttpRequest({
+      method: 'POST',
+      url,
+      headers: {
+        'User-Agent': `DiscogsGradingHelperPanel/${SCRIPT_VERSION}`,
+        Authorization: `Discogs token=${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: JSON.stringify({ folder_id: targetFolderId }),
+      onload: (res: Tampermonkey.Response<unknown>) => {
+        if (res.status === 201 || res.status === 204) {
+          resolve();
+        } else {
+          reject(new Error(`Failed to move folder: ${res.statusText} ${res.responseText}`));
+        }
+      },
+      onerror: (error) => reject(new Error(JSON.stringify(error))),
     });
   });
 }
@@ -115,9 +191,7 @@ export async function applyBulkEdit(
       );
     } else {
       // If no checkboxes are selected, apply to all items on the page
-      rows = Array.from(
-        document.querySelectorAll('div.MuiDataGrid-row[data-id]'),
-      ) as HTMLElement[];
+      rows = Array.from(document.querySelectorAll('div.MuiDataGrid-row[data-id]')) as HTMLElement[];
     }
 
     if (rows.length === 0) {
