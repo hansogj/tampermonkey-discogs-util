@@ -169,7 +169,9 @@ export function ReleasePanel() {
   if (!releaseId)
     return <div style={{ ...loadingStyle, fontSize: '12px' }}>Invalid release URL.</div>;
   if (isInstanceIdLoading)
-    return <div style={{ ...loadingStyle, fontSize: '12px' }}>Fetching collection status via API...</div>;
+    return (
+      <div style={{ ...loadingStyle, fontSize: '12px' }}>Fetching collection status via API...</div>
+    );
   if (instanceIdError)
     return (
       <div style={errorStyle}>

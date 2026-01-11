@@ -70,7 +70,11 @@ export function CollectionPanel() {
 
   const currentUrlFolderId = new URLSearchParams(window.location.search).get('folder_id');
 
-  const { data: fieldsResponse, isLoading: isCustomFieldsLoading, error: customFieldsError } = useQuery<FieldsResponse, Error>({
+  const {
+    data: fieldsResponse,
+    isLoading: isCustomFieldsLoading,
+    error: customFieldsError,
+  } = useQuery<FieldsResponse, Error>({
     queryKey: ['customFields'],
     queryFn: getCustomFields,
   });
@@ -97,7 +101,7 @@ export function CollectionPanel() {
   const { mutateAsync: performBulkMove, isPending: isBulkMoving } = useMutation({
     mutationFn: async (vars: { targetFolderId: number }) => {
       if (!folders) throw new Error('Folder list not loaded.');
-      
+
       let itemsToMove: HTMLElement[];
       const selectedRows = Array.from(
         document.querySelectorAll('[data-field="__check__"] input[aria-label~="row"]:checked'),
@@ -108,7 +112,9 @@ export function CollectionPanel() {
           .map((checkbox) => checkbox.closest('div.MuiDataGrid-row[data-id]'))
           .filter(Boolean) as HTMLElement[];
       } else {
-        itemsToMove = Array.from(document.querySelectorAll('div.MuiDataGrid-row[data-id]')) as HTMLElement[];
+        itemsToMove = Array.from(
+          document.querySelectorAll('div.MuiDataGrid-row[data-id]'),
+        ) as HTMLElement[];
       }
 
       if (itemsToMove.length === 0) {
@@ -124,22 +130,22 @@ export function CollectionPanel() {
         const releaseId = releaseIdMatch ? parseInt(releaseIdMatch[1], 10) : null;
 
         let itemCurrentFolderId: number | null = null;
-        
+
         const folderCell = item.querySelector('[data-field="folder"]');
         const folderName = folderCell?.textContent?.trim();
-        if(folderName){
-            const folder = folders.find(f => f.name === folderName);
-            if(folder) itemCurrentFolderId = folder.id;
+        if (folderName) {
+          const folder = folders.find((f) => f.name === folderName);
+          if (folder) itemCurrentFolderId = folder.id;
         }
-        
-        if(!itemCurrentFolderId) {
-            const folderLink = item.querySelector('a[href*="folder_id="]');
-            if (folderLink) {
-                const folderIdMatch = folderLink.getAttribute('href')?.match(/folder_id=(\d+)/);
-                if (folderIdMatch && folderIdMatch[1]) {
-                    itemCurrentFolderId = parseInt(folderIdMatch[1], 10);
-                }
+
+        if (!itemCurrentFolderId) {
+          const folderLink = item.querySelector('a[href*="folder_id="]');
+          if (folderLink) {
+            const folderIdMatch = folderLink.getAttribute('href')?.match(/folder_id=(\d+)/);
+            if (folderIdMatch && folderIdMatch[1]) {
+              itemCurrentFolderId = parseInt(folderIdMatch[1], 10);
             }
+          }
         }
 
         if (instanceId && releaseId && itemCurrentFolderId !== null) {
