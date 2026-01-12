@@ -1,6 +1,6 @@
 {
   "name": "tampermonkey-discogs-util",
-  "version": "6.21.12",
+  "version": "6.22.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -9,7 +9,8 @@
     "test": "vitest --run",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "check": "prettier --check .  && pnpm lint ",
-    "format": "prettier --write . && pnpm lint --fix"
+    "format": "prettier --write . && pnpm lint --fix",
+    "prepare": "husky"
   },
   "keywords": [
     "Discogs",
@@ -37,6 +38,7 @@
     "eslint-config-prettier": "^8.10.2",
     "eslint-plugin-prettier": "^4.2.5",
     "eslint-plugin-react": "^7.37.5",
+    "husky": "^9.1.7",
     "jsdom": "^27.2.0",
     "prettier": "^2.8.8",
     "sass": "^1.94.2",

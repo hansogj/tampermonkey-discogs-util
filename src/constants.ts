@@ -3,7 +3,7 @@ export const PANEL_STATE_STORAGE_KEY = 'dhp_panel_state';
 export const SELECTIONS_STORAGE_KEY = 'dhp_selections';
 export const CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY = 'dhp_custom_highlighted_labels';
 export const TOKEN_STORAGE_KEY = 'dhp_api_token';
-export const SCRIPT_VERSION = '6.21';
+export const SCRIPT_VERSION = '6.22';
 
 // Persisted query hash for the SINGLE item note edit, captured from user's network traffic
 export const EDIT_ITEM_NOTE_HASH =
