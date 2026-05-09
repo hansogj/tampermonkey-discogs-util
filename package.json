@@ -1,10 +1,11 @@
 {
   "name": "tampermonkey-discogs-util",
-  "version": "6.22.0",
+  "version": "6.26.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "vite build && node scripts/prepend-banner.js",
+    "build": "node scripts/bump-version.js && vite build && node scripts/prepend-banner.js",
+    "toClipboard": "NAME_SUFFIX=-dev pnpm build && xclip -selection clipboard < dist/discogs-util.user.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest --run",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
