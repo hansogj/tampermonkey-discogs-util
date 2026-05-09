@@ -40,9 +40,9 @@ export function ArtistPanel() {
     items.forEach((item) => {
       const el = item as HTMLElement;
       if (showInCollectionOnly) {
-        el.classList.add('hidden');
+        el.classList.add('dhp-hidden');
       } else {
-        el.classList.remove('hidden');
+        el.classList.remove('dhp-hidden');
       }
     });
   }, [showInCollectionOnly]);

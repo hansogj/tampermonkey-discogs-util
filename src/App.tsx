@@ -91,7 +91,7 @@ export function App() {
 
   useEffect(() => {
     const styleTag = document.createElement('style');
-    styleTag.innerHTML = `.hidden { display: none !important; }`;
+    styleTag.innerHTML = `.dhp-hidden { display: none !important; }`;
     document.head.appendChild(styleTag);
   }, []);
 
@@ -177,6 +177,17 @@ export function App() {
           ) : (
             <Login onLogin={handleLogin} />
           )}
+          <div
+            style={{
+              marginTop: 'auto',
+              paddingTop: '15px',
+              fontSize: '10px',
+              color: '#888',
+              textAlign: 'center',
+            }}
+          >
+            v{__APP_VERSION__} © @hansogj
+          </div>
         </div>
       </div>
     </QueryClientProvider>

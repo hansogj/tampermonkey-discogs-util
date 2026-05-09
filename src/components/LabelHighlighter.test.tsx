@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, act, _waitFor } from '@testing-library/react'; // Keep act for MO test
+import { render, act } from '@testing-library/react'; // Keep act for MO test
 import React from 'react';
 import { LabelHighlighter } from './LabelHighlighter';
 import {
   DEFAULT_HIGHLIGHTED_LABELS,
   CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY,
   LABEL_QUALITY_COLORS,
-  _LabelQuality,
 } from '../constants';
 import type { HighlightedLabels } from '../types';
 import { hexToRgb } from '../test/utils'; // Import the helper

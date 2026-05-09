@@ -19,7 +19,7 @@ describe('WantlistPanel', () => {
     if (isWantlist) {
       tr.classList.add('wantlist');
     }
-    // Let the component handle adding/removing 'hidden' class based on logic
+    // Let the component handle adding/removing 'dhp-hidden' class based on logic
 
     const tdArtistTitle = document.createElement('td');
     tdArtistTitle.className = 'artist_title';
@@ -55,25 +55,25 @@ describe('WantlistPanel', () => {
 
   it('diagnostic: classList remove works', () => {
     const el = document.createElement('div');
-    el.classList.add('test-class', 'hidden');
-    expect(el).toHaveClass('hidden');
-    el.classList.remove('hidden');
-    expect(el).not.toHaveClass('hidden');
+    el.classList.add('test-class', 'dhp-hidden');
+    expect(el).toHaveClass('dhp-hidden');
+    el.classList.remove('dhp-hidden');
+    expect(el).not.toHaveClass('dhp-hidden');
   });
 
   it("diagnostic: WantlistPanel's show function works", async () => {
     const testElem = document.createElement('tr');
-    testElem.classList.add('wantlist', 'hidden');
+    testElem.classList.add('wantlist', 'dhp-hidden');
     document.body.appendChild(testElem);
 
     // This is the function extracted from WantlistPanel.tsx for direct testing
     const showFn = (elem: HTMLElement) => {
-      elem.classList.remove('hidden');
+      elem.classList.remove('dhp-hidden');
     };
 
     showFn(testElem); // Call the function directly
 
-    expect(testElem).not.toHaveClass('hidden');
+    expect(testElem).not.toHaveClass('dhp-hidden');
   });
 
   it('should render the "Unique items" button', () => {
@@ -92,8 +92,8 @@ describe('WantlistPanel', () => {
 
     // Effect runs on mount, but showUniqueOnly is initially false, so all should be visible
     const items = ui.find('tr[class*=wantlist]');
-    expect(items[0]).not.toHaveClass('hidden');
-    expect(items[1]).not.toHaveClass('hidden');
+    expect(items[0]).not.toHaveClass('dhp-hidden');
+    expect(items[1]).not.toHaveClass('dhp-hidden');
   });
 
   it('should hide duplicate items when "Unique items" button is clicked', async () => {
@@ -116,10 +116,10 @@ describe('WantlistPanel', () => {
 
     // Diagnostic logs removed for cleaner output; rely on assertions now.
 
-    expect(mockItem1).not.toHaveClass('hidden'); // First instance of Artist A - Title 1
-    expect(mockItem2).toHaveClass('hidden'); // Second instance of Artist A - Title 1
-    expect(mockItem3).not.toHaveClass('hidden'); // First instance of Artist B - Title 2
-    expect(mockItem4).toHaveClass('hidden'); // Second instance of Artist B - Title 2
+    expect(mockItem1).not.toHaveClass('dhp-hidden'); // First instance of Artist A - Title 1
+    expect(mockItem2).toHaveClass('dhp-hidden'); // Second instance of Artist A - Title 1
+    expect(mockItem3).not.toHaveClass('dhp-hidden'); // First instance of Artist B - Title 2
+    expect(mockItem4).toHaveClass('dhp-hidden'); // Second instance of Artist B - Title 2
   });
 
   it('should show all items again when "Unique items" button is clicked twice', async () => {
@@ -134,14 +134,14 @@ describe('WantlistPanel', () => {
     await act(async () => {
       fireEvent.click(button); // Toggles to showUniqueOnly=true, hides duplicates
     });
-    expect(mockItem1).not.toHaveClass('hidden');
-    expect(mockItem2).toHaveClass('hidden');
+    expect(mockItem1).not.toHaveClass('dhp-hidden');
+    expect(mockItem2).toHaveClass('dhp-hidden');
 
     await act(async () => {
       fireEvent.click(button); // Toggles to showUniqueOnly=false, shows all
     });
-    expect(mockItem1).not.toHaveClass('hidden');
-    expect(mockItem2).not.toHaveClass('hidden');
+    expect(mockItem1).not.toHaveClass('dhp-hidden');
+    expect(mockItem2).not.toHaveClass('dhp-hidden');
   });
 
   it('should handle case sensitivity for artist and title', async () => {
@@ -156,8 +156,8 @@ describe('WantlistPanel', () => {
       fireEvent.click(button);
     });
 
-    expect(mockItem1).not.toHaveClass('hidden');
-    expect(mockItem2).toHaveClass('hidden');
+    expect(mockItem1).not.toHaveClass('dhp-hidden');
+    expect(mockItem2).toHaveClass('dhp-hidden');
   });
 
   it('should correctly identify duplicates with multiple unique items', async () => {
@@ -177,11 +177,11 @@ describe('WantlistPanel', () => {
       fireEvent.click(button);
     });
 
-    expect(mockItems[0]).not.toHaveClass('hidden'); // Artist X - Album Y (first)
-    expect(mockItems[1]).toHaveClass('hidden'); // Artist X - Album Y (duplicate)
-    expect(mockItems[2]).not.toHaveClass('hidden'); // Artist A - Album B (first)
-    expect(mockItems[3]).not.toHaveClass('hidden'); // Artist A - Album C (unique title)
-    expect(mockItems[4]).toHaveClass('hidden'); // Artist X - Album Y (duplicate)
-    expect(mockItems[5]).toHaveClass('hidden'); // Artist A - Album B (duplicate)
+    expect(mockItems[0]).not.toHaveClass('dhp-hidden'); // Artist X - Album Y (first)
+    expect(mockItems[1]).toHaveClass('dhp-hidden'); // Artist X - Album Y (duplicate)
+    expect(mockItems[2]).not.toHaveClass('dhp-hidden'); // Artist A - Album B (first)
+    expect(mockItems[3]).not.toHaveClass('dhp-hidden'); // Artist A - Album C (unique title)
+    expect(mockItems[4]).toHaveClass('dhp-hidden'); // Artist X - Album Y (duplicate)
+    expect(mockItems[5]).toHaveClass('dhp-hidden'); // Artist A - Album B (duplicate)
   });
 });

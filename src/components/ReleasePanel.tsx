@@ -8,8 +8,8 @@ import {
   moveReleaseToFolder,
 } from '../api';
 import { displayStatusMessage } from '../ui';
-import { SELECTIONS_STORAGE_KEY } from '../constants';
-import type { ApplyEditSelections, FieldsResponse, Folder } from '../types';
+import { SELECTIONS_STORAGE_KEY, FOLDER_SELECTION_STORAGE_KEY } from '../constants';
+import type { ApplyEditSelections, CustomField, FieldsResponse, Folder } from '../types';
 
 const loadingStyle: React.CSSProperties = {
   textAlign: 'center',
@@ -72,7 +72,9 @@ export function ReleasePanel() {
   const [selections, setSelections] = useState<ApplyEditSelections>(() => {
     return GM_getValue(SELECTIONS_STORAGE_KEY, {});
   });
-  const [targetFolderId, setTargetFolderId] = useState<string>('');
+  const [targetFolderId, setTargetFolderId] = useState<string>(() => {
+    return GM_getValue(FOLDER_SELECTION_STORAGE_KEY, '');
+  });
 
   const releaseIdMatch = window.location.pathname.match(/\/release\/(\d+)/);
   const releaseId = releaseIdMatch ? parseInt(releaseIdMatch[1], 10) : null;
@@ -89,7 +91,7 @@ export function ReleasePanel() {
     },
     enabled: !!releaseId,
     staleTime: Infinity,
-    cacheTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
   const instanceId = collectionItem?.instanceId;
@@ -134,6 +136,7 @@ export function ReleasePanel() {
 
   const handleApplySelections = async () => {
     GM_setValue(SELECTIONS_STORAGE_KEY, selections);
+    GM_setValue(FOLDER_SELECTION_STORAGE_KEY, targetFolderId);
 
     const hasFieldSelections = Object.values(selections).some((v) => v !== null);
     const hasFolderSelection = targetFolderId && Number(targetFolderId) !== currentFolderId;
@@ -228,7 +231,7 @@ export function ReleasePanel() {
           >
             <option value="">-- No change --</option>
             {folders?.map((folder: Folder) => (
-              <option key={folder.id} value={folder.id}>
+              <option key={folder.id} value={String(folder.id)}>
                 {folder.name}
               </option>
             ))}

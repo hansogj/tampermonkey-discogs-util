@@ -35,7 +35,7 @@ export type HighlightedLabels = {
 
 // Type for the processed object containing dropdown options
 export interface ApplyEditSelections {
-  [fieldId: number]: string;
+  [fieldId: number]: string | null;
 }
 
 // Type for a consistent error object returned by API functions

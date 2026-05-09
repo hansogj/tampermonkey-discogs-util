@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         discogs-util
+// @name         discogs-util{NAME_SUFFIX}
 // @namespace    @hansogj
 // @version      {VERSION_PLACEHOLDER}
 // @license      MIT

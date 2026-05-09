@@ -38,3 +38,7 @@ To get started:
 2.  Run `npm install` to install the dependencies.
 3.  Run `npm run build` to build the script. The output will be in the `dist` folder.
 4.  Run `npm run typecheck` to check for TypeScript errors.
+
+## Publish
+
+Login with github-user at [OpenUserJS](https://openuserjs.org/users/hog/scripts) and update script with latest dist build

@@ -1,0 +1,165 @@
+body,
+#page,
+#page_aside,
+#page_content,
+#site_footer,
+.card,
+.menu_container,
+.search_result,
+.wantlist_item,
+.collection_item {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.headline,
+.heading {
+  color: #ffffff !important;
+}
+
+a {
+  color: rgb(24 65 106) !important;
+}
+
+a:hover {
+  color: rgb(90 150 210) !important;
+}
+
+a:visited {
+  color: rgb(40 80 120) !important;
+}
+
+.search_results_main_thumb,
+.thumbnail_container {
+  background-color: #333333 !important;
+}
+
+#main_aside .list_aside,
+#main_aside .list_aside li {
+  border-color: #333333 !important;
+}
+
+.pagination,
+.pagination .disabled {
+  background-color: #333333 !important;
+}
+
+#page_header,
+#page_header #search_form {
+  background-color: #262626 !important;
+}
+
+#search_q {
+  background-color: #333333 !important;
+  color: #e0e0e0 !important;
+  border-color: #4d4d4d !important;
+}
+
+input[type='text'],
+input[type='search'],
+select,
+textarea {
+  background-color: #333333 !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #4d4d4d !important;
+}
+
+option {
+  background-color: #333333 !important;
+  color: #e0e0e0 !important;
+} /* 
+
+th,
+.button {
+  background-color: rgb(24 65 106) !important;
+  color: #ffffff !important;
+  border: 1px solid rgb(24 65 106) !important;
+}
+
+th,
+.button:hover {
+  background-color: rgb(40 80 120) !important;
+  border-color: rgb(40 80 120) !important;
+}
+ */
+.wantlist_header,
+.collection_header {
+  background-color: #262626 !important;
+  border-bottom-color: #333333 !important;
+}
+
+[class^='facetFilter__'],
+∕∕∕∕∕∕∕∕ [role='combobox'],
+[class^='searchBarContainer'] {
+  /* Your styles go here */
+
+  background-color: #474646 !important;
+  color: #e0e0e0 !important;
+}
+.folder_list a {
+  color: #e0e0e0 !important;
+}
+
+.folder_list .active {
+  background-color: #333333 !important;
+}
+
+/* Material UI overrides */
+.MuiDataGrid-root,
+.MuiDataGrid-row,
+.MuiDataGrid-cell,
+.MuiPaper-root,
+.MuiCard-root,
+.MuiAppBar-root,
+.MuiDrawer-paper {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+.MuiButton-root {
+  background-color: rgb(24 65 106) !important;
+  color: #ffffff !important;
+  border: 1px solid rgb(24 65 106) !important;
+}
+
+.MuiButton-root:hover {
+  background-color: rgb(40 80 120) !important;
+  border-color: rgb(40 80 120) !important;
+}
+
+.MuiInputBase-root,
+.MuiInput-root,
+.MuiSelect-root {
+  background-color: #333333 !important;
+  color: #e0e0e0 !important;
+  border-color: #4d4d4d !important;
+}
+
+.MuiCheckbox-root {
+  color: #e0e0e0 !important;
+}
+
+/* Other general styles from screenshots */
+.searchContainer_t45Pq,
+.fitlerAndViewOptionContainerViewer_h6fVU,
+.viewAndShow_dMonI {
+  background-color: #262626 !important;
+  border-bottom: 1px solid #333333 !important;
+}
+
+.table_responsive,
+.table_responsive > tbody > tr {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+#page_content > div > div > div.table_responsive > table > thead > tr > th {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}

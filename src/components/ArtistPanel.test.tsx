@@ -34,8 +34,8 @@ describe('ArtistPanel', () => {
     render(<ArtistPanel />);
 
     // Effect runs on mount, but showInCollectionOnly is initially false
-    expect(mockItem1).not.toHaveClass('hidden');
-    expect(mockItem2).not.toHaveClass('hidden');
+    expect(mockItem1).not.toHaveClass('dhp-hidden');
+    expect(mockItem2).not.toHaveClass('dhp-hidden');
   });
 
   it('should hide items when "In collection" button is clicked', () => {
@@ -49,27 +49,27 @@ describe('ArtistPanel', () => {
     const button = screen.getByRole('button', { name: /In collection/i });
     fireEvent.click(button); // Toggle showInCollectionOnly to true
 
-    expect(mockItem1).toHaveClass('hidden');
-    expect(mockItem2).toHaveClass('hidden');
+    expect(mockItem1).toHaveClass('dhp-hidden');
+    expect(mockItem2).toHaveClass('dhp-hidden');
   });
 
   it('should show items again when "In collection" button is clicked twice', () => {
     const mockItem1 = document.createElement('tr');
     const mockItem2 = document.createElement('tr');
-    mockItem1.classList.add('some-class', 'hidden'); // Initially hidden
-    mockItem2.classList.add('some-class', 'hidden');
+    mockItem1.classList.add('some-class', 'dhp-hidden'); // Initially hidden
+    mockItem2.classList.add('some-class', 'dhp-hidden');
     mockQuerySelectorAll.mockReturnValue([mockItem1, mockItem2]);
 
     render(<ArtistPanel />);
     const button = screen.getByRole('button', { name: /In collection/i });
 
     fireEvent.click(button); // Toggles to showInCollectionOnly=true, items become hidden (or stay hidden)
-    expect(mockItem1).toHaveClass('hidden');
-    expect(mockItem2).toHaveClass('hidden');
+    expect(mockItem1).toHaveClass('dhp-hidden');
+    expect(mockItem2).toHaveClass('dhp-hidden');
 
     fireEvent.click(button); // Toggles to showInCollectionOnly=false, items become visible
-    expect(mockItem1).not.toHaveClass('hidden');
-    expect(mockItem2).not.toHaveClass('hidden');
+    expect(mockItem1).not.toHaveClass('dhp-hidden');
+    expect(mockItem2).not.toHaveClass('dhp-hidden');
   });
 
   it('should ensure the filter is applied only on ArtistPage', () => {
@@ -83,6 +83,6 @@ describe('ArtistPanel', () => {
     render(<ArtistPanel />);
     const button = screen.getByRole('button', { name: /In collection/i });
     fireEvent.click(button);
-    expect(mockItem).toHaveClass('hidden'); // Should be hidden because effect ran
+    expect(mockItem).toHaveClass('dhp-hidden'); // Should be hidden because effect ran
   });
 });

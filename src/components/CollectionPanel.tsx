@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { getCustomFields, applyBulkEdit, getCollectionFolders, moveReleaseToFolder } from '../api';
 import { displayStatusMessage } from '../ui';
-import { SELECTIONS_STORAGE_KEY } from '../constants';
-import type { ApplyEditSelections, FieldsResponse, Folder } from '../types';
+import { SELECTIONS_STORAGE_KEY, FOLDER_SELECTION_STORAGE_KEY } from '../constants';
+import type { ApplyEditSelections, CustomField, FieldsResponse, Folder } from '../types';
 
 const loadingStyle: React.CSSProperties = {
   textAlign: 'center',
@@ -66,7 +66,9 @@ export function CollectionPanel() {
   const [selections, setSelections] = useState<ApplyEditSelections>(() => {
     return GM_getValue(SELECTIONS_STORAGE_KEY, {});
   });
-  const [targetFolderId, setTargetFolderId] = useState('');
+  const [targetFolderId, setTargetFolderId] = useState<string>(() => {
+    return GM_getValue(FOLDER_SELECTION_STORAGE_KEY, '');
+  });
 
   const currentUrlFolderId = new URLSearchParams(window.location.search).get('folder_id');
 
@@ -90,7 +92,7 @@ export function CollectionPanel() {
     Error,
     ApplyEditSelections
   >({
-    mutationFn: applyBulkEdit,
+    mutationFn: (selections: ApplyEditSelections) => applyBulkEdit(selections),
     onSuccess: (data) => displayStatusMessage(data, 'success', 0),
     onError: (e) => {
       displayStatusMessage(e.message, 'error');
@@ -175,6 +177,7 @@ export function CollectionPanel() {
 
   const handleApplySelections = async () => {
     GM_setValue(SELECTIONS_STORAGE_KEY, selections);
+    GM_setValue(FOLDER_SELECTION_STORAGE_KEY, targetFolderId);
 
     const hasFieldSelections = Object.values(selections).some((v) => v !== null);
     const hasFolderSelection = !!targetFolderId;
@@ -247,7 +250,7 @@ export function CollectionPanel() {
               {folders
                 .filter((f) => f.id.toString() !== currentUrlFolderId)
                 .map((folder: Folder) => (
-                  <option key={folder.id} value={folder.id}>
+                  <option key={folder.id} value={String(folder.id)}>
                     {folder.name}
                   </option>
                 ))}

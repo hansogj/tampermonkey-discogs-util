@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, _afterEach, beforeAll, _afterAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { Panel } from './Panel';

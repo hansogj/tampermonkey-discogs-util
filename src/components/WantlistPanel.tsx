@@ -62,10 +62,10 @@ export function WantlistPanel() {
     const wantlistItems = find('tr[class*=wantlist]');
 
     const hide = (elem: HTMLElement) => {
-      elem.classList.add('hidden');
+      elem.classList.add('dhp-hidden');
     };
     const show = (elem: HTMLElement) => {
-      elem.classList.remove('hidden');
+      elem.classList.remove('dhp-hidden');
     };
 
     const allWantlistReleases = wantlistItems.map(buildModel);

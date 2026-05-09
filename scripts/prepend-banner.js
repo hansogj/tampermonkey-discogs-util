@@ -8,15 +8,16 @@ const distDir = path.join(projectRoot, 'dist');
 const jsFilePath = path.join(distDir, 'discogs-util.user.js');
 
 try {
-  // 1. Read package.json to get the version
+  // 1. Read current version from package.json (already bumped by bump-version.js)
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
   const version = packageJson.version;
 
   // 2. Read banner.js content
   let bannerContent = fs.readFileSync(bannerJsPath, 'utf8');
 
-  // 3. Replace {VERSION_PLACEHOLDER} with the actual version
+  // 3. Replace placeholders
   bannerContent = bannerContent.replace('{VERSION_PLACEHOLDER}', version);
+  bannerContent = bannerContent.replace('{NAME_SUFFIX}', process.env.NAME_SUFFIX || '');
 
   // 4. Read Vite's generated JS content
   const viteJsContent = fs.readFileSync(jsFilePath, 'utf8');
