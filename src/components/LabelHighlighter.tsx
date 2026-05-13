@@ -7,69 +7,80 @@ import {
 } from '../constants';
 import type { HighlightedLabels } from '../types';
 
-export const highlightLabels = () => {
-  // Exported for testing
+function buildLabelMap(customLabels: HighlightedLabels): Map<string, LabelQuality> {
+  const map = new Map<string, LabelQuality>();
+  for (const quality in customLabels) {
+    for (const label of customLabels[quality as LabelQuality]) {
+      map.set(label.toLowerCase(), quality as LabelQuality);
+    }
+  }
+  return map;
+}
+
+// Exported for testing. Pass a list of elements to process only those; omit to process all label links.
+export const highlightLabels = (elements?: HTMLElement[]) => {
   const customLabels: HighlightedLabels = GM_getValue(
     CUSTOM_HIGHLIGHTED_LABELS_STORAGE_KEY,
     DEFAULT_HIGHLIGHTED_LABELS,
   );
-  const allLinks = document.querySelectorAll('a[href*="/label/"]');
+  const labelMap = buildLabelMap(customLabels);
 
-  allLinks.forEach((link) => {
-    const labelElement = link as HTMLElement;
-    const labelName = labelElement.textContent?.trim() || '';
+  const targets =
+    elements ?? (Array.from(document.querySelectorAll('a[href*="/label/"]')) as HTMLElement[]);
 
-    // Reset styles first
-    labelElement.style.backgroundColor = '';
-    labelElement.style.color = '';
-    labelElement.style.padding = ''; // for styling
-    labelElement.style.borderRadius = ''; // for styling
-    labelElement.style.boxShadow = ''; // for styling
-
-    let foundQuality: LabelQuality | undefined;
-    for (const quality in customLabels) {
-      if (
-        customLabels[quality as LabelQuality].some(
-          (l: string) => l.toLowerCase() === labelName.toLowerCase(),
-        )
-      ) {
-        foundQuality = quality as LabelQuality;
-        break;
-      }
-    }
+  targets.forEach((labelElement) => {
+    const labelName = labelElement.textContent?.trim().toLowerCase() || '';
+    const foundQuality = labelMap.get(labelName);
 
     if (foundQuality) {
       const color = LABEL_QUALITY_COLORS[foundQuality];
       labelElement.style.backgroundColor = color;
-      if (foundQuality === 'good' || foundQuality === 'fair') {
-        labelElement.style.color = 'black';
-      } else {
-        labelElement.style.color = 'white';
-      }
+      labelElement.style.color =
+        foundQuality === 'good' || foundQuality === 'fair' ? 'black' : 'white';
       labelElement.style.padding = '2px 4px';
       labelElement.style.borderRadius = '3px';
-      labelElement.style.boxShadow = '2px 2px 2px #aaaaaa'; // subtle shadow
+      labelElement.style.boxShadow = '2px 2px 2px #aaaaaa';
+    } else {
+      labelElement.style.backgroundColor = '';
+      labelElement.style.color = '';
+      labelElement.style.padding = '';
+      labelElement.style.borderRadius = '';
+      labelElement.style.boxShadow = '';
     }
   });
 };
 
 export function LabelHighlighter() {
   useEffect(() => {
-    // Initial run
+    // Initial run — highlight everything already in the DOM
     highlightLabels();
-    // Debounce to avoid running on every DOM mutation during heavy re-renders (e.g. DataGrid filtering)
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-    const debouncedHighlight = () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(highlightLabels, 150);
-    };
-    const observer = new MutationObserver(debouncedHighlight);
+
+    // On subsequent mutations, only process newly added nodes instead of
+    // re-scanning the entire document. This avoids main-thread stalls when
+    // the MUI DataGrid adds/removes many rows during scroll or filtering.
+    const observer = new MutationObserver((mutations) => {
+      const newLinks: HTMLElement[] = [];
+      for (const mutation of mutations) {
+        for (const node of Array.from(mutation.addedNodes)) {
+          if (node.nodeType !== Node.ELEMENT_NODE) continue;
+          const el = node as Element;
+          if (el.matches('a[href*="/label/"]')) {
+            newLinks.push(el as HTMLElement);
+          }
+          el.querySelectorAll('a[href*="/label/"]').forEach((link) => {
+            newLinks.push(link as HTMLElement);
+          });
+        }
+      }
+      if (newLinks.length > 0) {
+        highlightLabels(newLinks);
+      }
+    });
+
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
       observer.disconnect();
-      // Cleanup styles
       document.querySelectorAll('a[href*="/label/"]').forEach((link) => {
         const labelElement = link as HTMLElement;
         labelElement.style.backgroundColor = '';
@@ -78,7 +89,7 @@ export function LabelHighlighter() {
         labelElement.style.borderRadius = '';
       });
     };
-  }, []); // Empty dependency array means it runs once on mount and cleans up on unmount.
+  }, []);
 
-  return null; // This component does not render anything
+  return null;
 }
