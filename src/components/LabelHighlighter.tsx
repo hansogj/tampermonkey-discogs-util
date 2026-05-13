@@ -57,11 +57,17 @@ export function LabelHighlighter() {
   useEffect(() => {
     // Initial run
     highlightLabels();
-    // Observe the whole body for changes
-    const observer = new MutationObserver(highlightLabels);
+    // Debounce to avoid running on every DOM mutation during heavy re-renders (e.g. DataGrid filtering)
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const debouncedHighlight = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(highlightLabels, 150);
+    };
+    const observer = new MutationObserver(debouncedHighlight);
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
       observer.disconnect();
       // Cleanup styles
       document.querySelectorAll('a[href*="/label/"]').forEach((link) => {
